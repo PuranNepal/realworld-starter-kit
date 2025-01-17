@@ -2,6 +2,9 @@ const express = require("express");
 const {
   createArticle,
   getArticles,
+  getArticle,
+  deleteArticle,
+  updateArticle,
 } = require("../controllers/articleController");
 
 const router = express.Router();
@@ -13,18 +16,12 @@ router.post("/", createArticle);
 router.get("/", getArticles);
 
 //Get single article by slug
-router.get("/:slug", (req, res) => {
-  res.json({ messg: "get single article" });
-});
+router.get("/:slug", getArticle);
 
 //Delete
-router.delete("/:slug", (req, res) => {
-  res.json({ messg: "Delete single article" });
-});
+router.delete("/:slug", deleteArticle);
 
 //Update
-router.put("/:slug", (req, res) => {
-  res.json({ messg: "Update single article" });
-});
+router.put("/:slug", updateArticle);
 
 module.exports = router;

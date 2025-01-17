@@ -2,7 +2,8 @@ require("dotenv").config();
 
 const express = require("express");
 const mongoose = require("mongoose");
-const articlesRouter = require("./Articles/articles");
+const articlesRouter = require("./Router/articles");
+const userRouter = require("./Router/users");
 
 //Create Express App
 const app = express();
@@ -14,13 +15,13 @@ app.use((req, res, next) => {
   next();
 });
 
-//Article API 
+//Article API
 app.use("/api/articles", articlesRouter);
 
-//
-app.get("/", (req, res) => {
-  res.json({ mess: "Hello World" });
-});
+//Register
+app.use("/api/users", userRouter);
+
+//Current User
 
 //connect to mongodb
 mongoose
