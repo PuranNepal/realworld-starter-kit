@@ -1,32 +1,37 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { Link } from "react-router-dom";
 
-type Article = {
-  slug: string;
-  title: string;
-  description: string;
-  tagList: string[];
-  createdAt: string;
-  updatedAt: string;
-  favorited: boolean;
-  favoritesCount: number;
-  author: {
-    username: string;
-    bio: string;
-    image: string;
-    following: boolean;
-  };
+type ArticleType = {
+  _id: string; // MongoDB ObjectID, represented as a string
+  slug: string; // Unique slug for the article
+  title: string; // Title of the article
+  description: string; // Short description
+  body: string; // Main content of the article
+  favorited: boolean; // Indicates if the article is favorited
+  tagList: string[]; // List of tags associated with the article
+  favoritesCount: number; // Number of times the article was favorited
+  createdAt: string; // ISO date string for article creation
+  updatedAt: string; // ISO date string for last update
+  __v: number; // Internal versioning field from MongoDB
 };
 
 const Home = () => {
-  const [articles, setArticles] = useState<Article[]>([]);
-
+  const [articles, setArticles] = useState<ArticleType[]>([]);
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     const fetchArticles = async () => {
-      const response = await fetch("/articles.json");
-      const articleJson = await response.json();
-      if (response.ok) {
-        setArticles(articleJson.articles);
+      try {
+        const response = await axios.get("http://localhost:4000/api/articles");
+        setArticles(response.data.articles);
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          console.log(error.message);
+        } else {
+          console.log(error);
+        }
       }
+      setLoading(false);
     };
     fetchArticles();
   }, []);
@@ -58,43 +63,45 @@ const Home = () => {
               </ul>
             </div>
 
-            {articles.length > 0 ? (
+            {loading && <p>Loading</p>}
+
+            {!loading &&
               articles.map((article) => (
-                <div className="article-preview">
+                <div key={article.slug} className="article-preview">
                   <div className="article-meta">
-                    <a href={"/profile/" + article.author.username}>
-                      <img src={article.author.image} />
+                    <a href="/profile/eric-simons">
+                      <img src="http://i.imgur.com/Qr71crq.jpg" />
                     </a>
                     <div className="info">
-                      <a
-                        href={"/profile/" + article.author.username}
-                        className="author"
-                      >
-                        {article.author.username}
+                      <a href="/profile/eric-simons" className="author">
+                        Eric Simons
                       </a>
                       <span className="date">{article.createdAt}</span>
                     </div>
                     <button className="btn btn-outline-primary btn-sm pull-xs-right">
-                      <i className="ion-heart"></i> {article.favoritesCount}
+                      <i className="ion-heart"></i> 29
                     </button>
                   </div>
-                  <a href={"/article/" + article.slug} className="preview-link">
+                  <Link
+                    to={"/article/" + article.slug}
+                    className="preview-link"
+                  >
                     <h1>{article.title}</h1>
                     <p>{article.description}</p>
                     <span>Read more...</span>
                     <ul className="tag-list">
-                      {article.tagList.map((tag) => (
-                        <li className="tag-default tag-pill tag-outline">
+                      {article.tagList.map((tag, index) => (
+                        <li
+                          key={index}
+                          className="tag-default tag-pill tag-outline"
+                        >
                           {tag}
                         </li>
                       ))}
                     </ul>
-                  </a>
+                  </Link>
                 </div>
-              ))
-            ) : (
-              <p>Loading articles...</p>
-            )}
+              ))}
 
             <ul className="pagination">
               <li className="page-item active">

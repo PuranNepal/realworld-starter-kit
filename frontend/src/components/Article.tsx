@@ -1,11 +1,44 @@
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+
+type ArticleType = {
+  _id: string; // MongoDB ObjectID, represented as a string
+  slug: string; // Unique slug for the article
+  title: string; // Title of the article
+  description: string; // Short description
+  body: string; // Main content of the article
+  favorited: boolean; // Indicates if the article is favorited
+  tagList: string[]; // List of tags associated with the article
+  favoritesCount: number; // Number of times the article was favorited
+  createdAt: string; // ISO date string for article creation
+  updatedAt: string; // ISO date string for last update
+  __v: number; // Internal versioning field from MongoDB
+};
+
 const Article = () => {
-  
+  const { slug } = useParams<string>();
+  const [article, setArticle] = useState<ArticleType | null>(null);
+
+  useEffect(() => {
+    const fetchArticle = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:4000/api/articles/" + slug
+        );
+        setArticle(response.data.article);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchArticle();
+  }, []);
 
   return (
     <div className="article-page">
       <div className="banner">
         <div className="container">
-          <h1>How to build webapps that scale</h1>
+          <h1>{article?.title}</h1>
 
           <div className="article-meta">
             <a href="/profile/eric-simons">
@@ -15,7 +48,7 @@ const Article = () => {
               <a href="/profile/eric-simons" className="author">
                 Eric Simons
               </a>
-              <span className="date">January 20th</span>
+              <span className="date">{article?.createdAt}</span>
             </div>
             <button className="btn btn-sm btn-outline-secondary">
               <i className="ion-plus-round"></i>
@@ -39,17 +72,13 @@ const Article = () => {
       <div className="container page">
         <div className="row article-content">
           <div className="col-md-12">
-            <p>
-              Web development technologies have evolved at an incredible clip
-              over the past few years.
-            </p>
-            <h2 id="introducing-ionic">Introducing RealWorld.</h2>
-            <p>It's a great solution for learning how other frameworks work.</p>
+            <p>{article?.body}</p>
             <ul className="tag-list">
-              <li className="tag-default tag-pill tag-outline">realworld</li>
-              <li className="tag-default tag-pill tag-outline">
-                implementations
-              </li>
+              {article?.tagList.map((tag, index) => (
+                <li key={index} className="tag-default tag-pill tag-outline">
+                  {tag}
+                </li>
+              ))}
             </ul>
           </div>
         </div>

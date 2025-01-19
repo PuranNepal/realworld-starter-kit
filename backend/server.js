@@ -4,10 +4,11 @@ const express = require("express");
 const mongoose = require("mongoose");
 const articlesRouter = require("./Router/articles");
 const userRouter = require("./Router/users");
-
+const cors = require("cors");
 //Create Express App
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 //middleware to log request
 app.use((req, res, next) => {
